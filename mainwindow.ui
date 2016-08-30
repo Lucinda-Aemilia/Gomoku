@@ -57,6 +57,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="remindButton">
+           <property name="text">
+            <string>&amp;Remind</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="quitButton">
            <property name="text">
             <string>&amp;Quit</string>
@@ -154,7 +161,7 @@
      </layout>
     </item>
     <item>
-     <widget class="Board" name="widget" native="true">
+     <widget class="Board" name="board" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
