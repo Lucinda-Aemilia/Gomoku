@@ -35,6 +35,7 @@ protected:
 private:
     Ui::Board *ui;
     QColor m_backgroundColor;
+    QColor m_pieceColor;
     int m_pointSize;
     int m_pieceSize;
     QVector<Piece> pieces;
