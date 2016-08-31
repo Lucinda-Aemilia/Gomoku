@@ -22,6 +22,7 @@ void Board::init(const State &state, const QColor &pieceColor)
     for (int i = 0; i < 15; i++)
         for (int j = 0; j < 15; j++)
             m_board[i][j] = None;
+    m_pieces.clear();
     qDebug() << m_pieceColor << m_otherPieceColor;
 }
 

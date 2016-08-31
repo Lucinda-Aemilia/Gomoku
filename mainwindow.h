@@ -9,6 +9,7 @@
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
 #include <QPixmap>
+#include <QMessageBox>
 #include <QTimer>
 #include <ctime>
 #include <cstdlib>
@@ -32,11 +33,14 @@ public slots:
     void recvMessage();
     void addedPiece(const Board::Piece& piece);
     void waitForServerConnection();
+    void clearAll();
 
 private slots:
     void on_createButton_clicked();
 
     void on_connectButton_clicked();
+
+    void on_quitButton_clicked();
 
 private:
     Ui::MainWindow *ui;

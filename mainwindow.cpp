@@ -69,7 +69,6 @@ void MainWindow::on_createButton_clicked()
             ui->roleTextEdit->setPlainText("Role: Undefined");
             ui->statusTextEdit->setPlainText("Status: Undefined");
         }
-
         // 连接完后，开始决定谁是先手，谁是后手，开始下棋
     }
 }
@@ -78,6 +77,7 @@ void MainWindow::acceptConnection()
 {
     qDebug() << "MainWindow::acceptConnection()";
     m_state = Board::Pend;
+    ui->board->init(Board::Pend);
     // m_role = Server;
     // ui->roleLabel->setText("Role: Server");
     // ui->statusLabel->setText("Status: Waiting for connection");
@@ -96,8 +96,10 @@ void MainWindow::acceptConnection()
         if (x == 0) // server 执黑棋
         {
             ui->board->init(Board::Run, Qt::black);
-            ui->meColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size()));
-            ui->otherColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size()));
+            ui->meColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size(),
+                                                          Qt::KeepAspectRatio));
+            ui->otherColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size(),
+                                                             Qt::KeepAspectRatio));
             QString text("COLOR WHITE");
             m_readWriteSocket->write(text.toLocal8Bit());
             ui->board->waitForInput();
@@ -105,8 +107,10 @@ void MainWindow::acceptConnection()
         else // server 执白棋
         {
             ui->board->init(Board::Pend, Qt::white);
-            ui->meColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size()));
-            ui->otherColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size()));
+            ui->meColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size(),
+                                                          Qt::KeepAspectRatio));
+            ui->otherColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size(),
+                                                             Qt::KeepAspectRatio));
             QString text("COLOR BLACK");
             m_readWriteSocket->write(text.toLocal8Bit());
         }
@@ -152,15 +156,19 @@ void MainWindow::recvMessage()
 
             if (command.at(1) == "BLACK")
             {
-                ui->meColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size()));
-                ui->otherColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size()));
+                ui->meColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size(),
+                                                              Qt::KeepAspectRatio));
+                ui->otherColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size(),
+                                                                 Qt::KeepAspectRatio));
                 ui->board->init(Board::Run, Qt::black);
                 ui->board->waitForInput();
             }
             else
             {
-                ui->meColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size()));
-                ui->otherColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size()));
+                ui->meColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size(),
+                                                              Qt::KeepAspectRatio));
+                ui->otherColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size(),
+                                                                 Qt::KeepAspectRatio));
                 ui->board->init(Board::Pend, Qt::white);
             }
         }
@@ -170,8 +178,24 @@ void MainWindow::recvMessage()
             ui->board->addOtherPiece(r, c);
             ui->board->waitForInput();
         }
+        else if (list.at(i).contains("QUIT"))
+        {
+            QMessageBox::information(this, "Contratulations!",
+                                     "Your opponent quit.\nYou win.");
+            // clearAll();
+            ui->board->setState(Board::Win);
+            m_state = Board::Undefined;
+            if (m_listenSocket)
+                m_listenSocket->close();
+            m_readWriteSocket->close();
+        }
     }
     qDebug() << info;
+}
+
+void MainWindow::clearAll()
+{
+
 }
 
 void MainWindow::on_connectButton_clicked()
@@ -247,3 +271,23 @@ void clientWindow::connectHost()
     QObject::connect(this->readWriteSocket,SIGNAL(readyRead()),this,SLOT(recvMessage()));
 }
 */
+
+void MainWindow::on_quitButton_clicked()
+{
+    if (m_state == Board::Undefined)
+        return;
+    int ret = QMessageBox::question(this, "Quit",
+                          "Do you really want to quit?\nYou will lose.",
+                                    QMessageBox::Yes, QMessageBox::No);
+    if (ret == QMessageBox::No)
+        return;
+    QMessageBox::information(this, "Sorry...",
+                             "You quit.\nYou lose.");
+    // clearAll();
+    m_readWriteSocket->write(QString("QUIT").toLocal8Bit());
+    ui->board->setState(Board::Lost);
+    m_state = Board::Undefined;
+    if (m_listenSocket)
+        m_listenSocket->close();
+    m_readWriteSocket->close();
+}
