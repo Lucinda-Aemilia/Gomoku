@@ -21,7 +21,7 @@ class Board : public QWidget
 
 public:
     enum PieceType { MyPiece, OtherPiece, None };
-    enum State { WaitForConnect, Pend, Run, Win, Lost };
+    enum State {Undefined, WaitForConnect, Pend, Run, Win, Lost };
     explicit Board(QWidget *parent = 0);
     void init(const State& state, const QColor& pieceColor = Qt::white);
     // 画棋盘和棋子

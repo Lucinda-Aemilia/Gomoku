@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -14,10 +14,16 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    board.cpp
+    board.cpp \
+    createdialog.cpp \
+    connectbutton.cpp
 
 HEADERS  += mainwindow.h \
-    board.h
+    board.h \
+    createdialog.h \
+    connectbutton.h
 
 FORMS    += mainwindow.ui \
-    board.ui
+    board.ui \
+    createdialog.ui \
+    connectbutton.ui

@@ -24,9 +24,16 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
+          <widget class="QLabel" name="roleLabel">
+           <property name="text">
+            <string>Role: Undefined</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="statusLabel">
            <property name="text">
-            <string>TextLabel</string>
+            <string>Status: Undefined</string>
            </property>
           </widget>
          </item>

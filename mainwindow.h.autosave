@@ -27,6 +27,8 @@ public slots:
 private slots:
     void on_createButton_clicked();
 
+    void on_connectButton_clicked();
+    
 private:
     Ui::MainWindow *ui;
     Role m_role;

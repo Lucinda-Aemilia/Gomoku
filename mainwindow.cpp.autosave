@@ -23,7 +23,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_createButton_clicked()
 {
-            qDebug() << "create button" << m_state << Board::Undefined;
+    qDebug() << "create button" << m_state << Board::Undefined;
     if (m_state == Board::Undefined)
     {
         // 显示主机ip
@@ -72,7 +72,7 @@ void MainWindow::acceptConnection()
     qDebug() << "MainWindow::acceptConnection()";
     m_state = Board::Pend;
     m_role = Server;
-    ui->roleLabel->setText("Role: Server");
+    // ui->roleLabel->setText("Role: Server");
     // ui->statusLabel->setText("Status: Waiting for connection");
     ui->statusLabel->setText("Status: Received connection from client");
     this->m_readWriteSocket =this->m_listenSocket->nextPendingConnection();
@@ -86,4 +86,18 @@ void MainWindow::recvMessage()
     QString info;
     info += this->m_readWriteSocket->readAll();
     qDebug() << info;
+}
+
+void MainWindow::on_connectButton_clicked()
+{
+    
+}
+
+void clientWindow::connectHost()
+{
+    this->readWriteSocket = new QTcpSocket;
+    // this->readWriteSocket->connectToHost(QHostAddress("192.168.2.106"),8888);
+    this->readWriteSocket->connectToHost(QHostAddress::LocalHost, 8888);
+    qDebug() << this->readWriteSocket->state();
+    QObject::connect(this->readWriteSocket,SIGNAL(readyRead()),this,SLOT(recvMessage()));
 }
