@@ -73,8 +73,20 @@ public slots:
     void addOtherPiece(int r, int c)
     {
         Piece piece(r, c, OtherPiece);
+        if (m_board[r][c] != None)
+            return;
         m_board[r][c] = OtherPiece;
         m_pieces.append(piece);
+
+        qDebug() << "\n*******addOtherPiece*******";
+        for (int i = 0; i < m_pieces.size(); i++)
+        {
+            qDebug() << "pieceColor" << m_pieceColor << "Other piece Color" << m_otherPieceColor;
+            qDebug() << "画棋子" << m_pieces.at(i).row() << m_pieces.at(i).column()
+                     << m_pieces.at(i).type();
+            qDebug() << "MyPiece" << MyPiece << "OtherPiece" << OtherPiece;
+        }
+
         update();
     }
 

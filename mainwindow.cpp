@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_readWriteSocket = NULL;
     ui->board->init(Board::Undefined);
     connect(ui->board, SIGNAL(inputFinished(Board::Piece)),
-            this, SLOT(recvOtherPiece(Board::Piece)));
+            this, SLOT(addedPiece(Board::Piece)));
     m_blackPng.load(":/icon/black.png");
     m_whitePng.load(":/icon/white.png");
 }
@@ -89,6 +89,7 @@ void MainWindow::acceptConnection()
         QObject::connect(this->m_readWriteSocket, SIGNAL(readyRead())
                          , this, SLOT(recvMessage()));
 
+
         // random黑色或白色
         std::srand(std::time(0));
         int x = std::rand() % 2;
@@ -97,6 +98,8 @@ void MainWindow::acceptConnection()
             ui->board->init(Board::Run, Qt::black);
             ui->meColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size()));
             ui->otherColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size()));
+            QString text("COLOR WHITE");
+            m_readWriteSocket->write(text.toLocal8Bit());
             ui->board->waitForInput();
         }
         else // server 执白棋
@@ -104,9 +107,18 @@ void MainWindow::acceptConnection()
             ui->board->init(Board::Pend, Qt::white);
             ui->meColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size()));
             ui->otherColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size()));
-            QString text("COLOR(BLACK)");
+            QString text("COLOR BLACK");
             m_readWriteSocket->write(text.toLocal8Bit());
         }
+        /*
+        ui->board->init(Board::Run, Qt::black);
+        ui->meColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size()));
+        ui->otherColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size()));
+        QString text("COLOR(WHITE)");
+        m_readWriteSocket->write(text.toLocal8Bit());
+        qDebug() << "write to client" << text;
+        ui->board->waitForInput();
+        */
     }
     else if (m_role == Client)
     {
@@ -119,15 +131,46 @@ void MainWindow::acceptConnection()
 
 }
 
-void MainWindow::recvOtherPiece(const Board::Piece &piece)
+void MainWindow::addedPiece(const Board::Piece &piece)
 {
     ui->board->addOtherPiece(piece.row(), piece.column());
+    QString text(QString("ADD %1 %2").arg(piece.row()).arg(piece.column()));
+    m_readWriteSocket->write(text.toLocal8Bit());
 }
 
 void MainWindow::recvMessage()
 {
-    qDebug() << "received message";
+
     QString info(this->m_readWriteSocket->readAll());
+    qDebug() << "received message" << info;
+    QStringList list(info.split('\n'));
+    for (int i = 0; i < list.size(); i++)
+    {
+        QStringList command(list.at(i).split(" "));
+        if (list.at(i).contains("COLOR"))
+        {
+
+            if (command.at(1) == "BLACK")
+            {
+                ui->meColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size()));
+                ui->otherColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size()));
+                ui->board->init(Board::Run, Qt::black);
+                ui->board->waitForInput();
+            }
+            else
+            {
+                ui->meColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size()));
+                ui->otherColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size()));
+                ui->board->init(Board::Pend, Qt::white);
+            }
+        }
+        else if (list.at(i).contains("ADD"))
+        {
+            int r = command.at(1).toInt(), c = command.at(2).toInt();
+            ui->board->addOtherPiece(r, c);
+            ui->board->waitForInput();
+        }
+    }
     qDebug() << info;
 }
 

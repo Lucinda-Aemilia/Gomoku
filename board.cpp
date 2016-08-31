@@ -22,6 +22,7 @@ void Board::init(const State &state, const QColor &pieceColor)
     for (int i = 0; i < 15; i++)
         for (int j = 0; j < 15; j++)
             m_board[i][j] = None;
+    qDebug() << m_pieceColor << m_otherPieceColor;
 }
 
 Board::~Board()
@@ -120,6 +121,13 @@ void Board::paintEvent(QPaintEvent *event)
     for (int i = 0; i < m_pieces.size(); i++)
     {
         painter.save();
+
+        /*
+        qDebug() << "pieceColor" << m_pieceColor << "Other piece Color" << m_otherPieceColor;
+        qDebug() << "画棋子" << m_pieces.at(i).row() << m_pieces.at(i).column()
+                 << m_pieces.at(i).type();
+        qDebug() << "MyPiece" << MyPiece << "OtherPiece" << OtherPiece;
+        */
         if (m_pieces.at(i).type() == MyPiece)
             painter.setBrush(m_pieceColor);
         else

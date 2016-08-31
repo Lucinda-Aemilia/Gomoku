@@ -12,6 +12,7 @@
 #include <QTimer>
 #include <ctime>
 #include <cstdlib>
+#include <QString>
 
 namespace Ui {
 class MainWindow;
@@ -29,7 +30,7 @@ public:
 public slots:
     void acceptConnection();
     void recvMessage();
-    void recvOtherPiece(const Board::Piece& piece);
+    void addedPiece(const Board::Piece& piece);
     void waitForServerConnection();
 
 private slots:
