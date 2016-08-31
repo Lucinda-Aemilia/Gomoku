@@ -25,12 +25,16 @@ public:
     enum State {Undefined, WaitForConnect, Pend, Run, Win, Lost };
     explicit Board(QWidget *parent = 0);
     void init(const State& state, const QColor& pieceColor = Qt::white);
+    QColor getColor() const
+    {
+        return m_pieceColor;
+    }
     void setState(State state) { m_state = state; }
     // 画棋盘和棋子
     void paintEvent(QPaintEvent* event);
     void mousePressEvent(QMouseEvent* event);
     // 检查是否下完后赢了
-    void checkState();
+    bool checkState();
     // 画出危险位置
     void drawDangerous(bool danger)
     {

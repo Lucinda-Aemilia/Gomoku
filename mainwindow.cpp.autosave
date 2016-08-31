@@ -144,7 +144,7 @@ void MainWindow::addedPiece(const Board::Piece &piece)
     if (win)
     {
         text += QString(";") +QString("WIN");
-        qDebug() << "addpiece" << text << text.toLocal8Bit() << text.toLatin1();
+        qDebug() << "addpiece" << text;
         m_readWriteSocket->write(text.toLocal8Bit());
         this->win();
     }

@@ -36,12 +36,12 @@ void Board::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton && m_state == Run)
     {
         int x = event->pos().x(), y = event->pos().y();
-        qDebug() << x << y;
-        int r = toIndex(x - (width()-m_length)/2);
-        int c = toIndex(y - (height()-m_length)/2);
+        // qDebug() << x << y;
+        int c = toIndex(x - (width()-m_length)/2);
+        int r = toIndex(y - (height()-m_length)/2);
         if (m_board[r][c] != PieceType::None)
             return;
-        qDebug() << r << c;
+        // qDebug() << r << c;
         Piece piece(r, c, MyPiece);
         addPiece(piece);
         return;
@@ -63,6 +63,101 @@ void Board::addPiece(const Piece &piece)
     m_state = Pend;
     emit inputFinished(piece);
     update();
+}
+
+// 检查是不是赢了
+bool Board::checkState()
+{
+    // 把棋盘打印出来
+    qDebug() << "checkState";
+    for (int i = 0; i < 15; i++)
+    {
+        QString state;
+        for (int j = 0; j < 15; j++)
+            if (m_board[i][j] == None)
+                state += "-";
+            else if (m_board[i][j] == MyPiece)
+                state += "1";
+            else
+                state += "0";
+        qDebug() << state;
+    }
+    qDebug() << '\n';
+
+    for (int i = 0; i < 15; i++)
+    {
+        // 横
+        int j = 0;
+        while (j < 15)
+        {
+            while (j < 15 && m_board[i][j] != PieceType::MyPiece)
+                j++;
+            if (j >= 15)
+                break;
+            int k = 0;
+            while (j < 15 && m_board[i][j] == PieceType::MyPiece)
+            {
+                j++;
+                k++;
+            }
+            if (k >= 5)
+                return true;
+        }
+        // 竖
+        j = 0;
+        while (j < 15)
+        {
+            while (j < 15 && m_board[j][i] != PieceType::MyPiece)
+                j++;
+            if (j >= 15)
+                break;
+            int k = 0;
+            while (j < 15 && m_board[j][i] == PieceType::MyPiece)
+            {
+                j++;
+                k++;
+            }
+            if (k >= 5)
+                return true;
+        }
+    }
+
+    // 左斜
+    for (int i = 0; i < 15; i++)
+    {
+        int j = 0;
+        while (j + i < 15)
+        {
+            while (j + i < 15 && m_board[j][i+j] != PieceType::MyPiece)
+                j++;
+            if (j+i == 15) break;
+            int k = 0;
+            while (i+j < 15 && m_board[j][i+j] == PieceType::MyPiece)
+            {
+                k++;
+                j++;
+            }
+            if (k >= 5) return true;
+        }
+
+        j = 0;
+        while (j + i < 15)
+        {
+            while (j + i < 15 && m_board[i+j][j] != PieceType::MyPiece)
+                j++;
+            if (j+i == 15) break;
+            int k = 0;
+            while (i+j < 15 && m_board[i+j][j] == PieceType::MyPiece)
+            {
+                k++;
+                j++;
+            }
+            if (k >= 5) return true;
+        }
+    }
+    // 右斜
+
+    return false;
 }
 
 int Board::toIndex(int pos)
@@ -134,8 +229,8 @@ void Board::paintEvent(QPaintEvent *event)
         else
             painter.setBrush(m_otherPieceColor);
         painter.setPen(Qt::black);
-        painter.translate(length / 14.0 * m_pieces.at(i).row(),
-                          length / 14.0 * m_pieces.at(i).column());
+        painter.translate(length / 14.0 * m_pieces.at(i).column(),
+                          length / 14.0 * m_pieces.at(i).row());
         painter.drawEllipse(QPoint(0, 0), m_pieceSize, m_pieceSize);
         painter.restore();
     }

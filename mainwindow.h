@@ -34,6 +34,8 @@ public slots:
     void addedPiece(const Board::Piece& piece);
     void waitForServerConnection();
     void clearAll();
+    void win(QString info = "");
+    void lose(QString info = "");
 
 private slots:
     void on_createButton_clicked();
