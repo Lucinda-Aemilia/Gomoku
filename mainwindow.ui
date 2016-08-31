@@ -103,7 +103,14 @@
          <item>
           <widget class="QPushButton" name="quitButton">
            <property name="text">
-            <string>&amp;Quit</string>
+            <string>&amp;Quit Game</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="exitButton">
+           <property name="text">
+            <string>&amp;Exit</string>
            </property>
           </widget>
          </item>

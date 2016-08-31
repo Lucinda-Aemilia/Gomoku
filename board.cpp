@@ -23,7 +23,9 @@ void Board::init(const State &state, const QColor &pieceColor)
         for (int j = 0; j < 15; j++)
             m_board[i][j] = None;
     m_pieces.clear();
+    m_dangers.clear();
     qDebug() << m_pieceColor << m_otherPieceColor;
+    update();
 }
 
 Board::~Board()
@@ -156,6 +158,38 @@ bool Board::checkState()
         }
     }
     // 右斜
+    for (int i = 0; i < 15; i++)
+    {
+        int j = 0;
+        while (j <= i)
+        {
+            while (j <= i && m_board[i][i-j] != PieceType::MyPiece)
+                j++;
+            if (j == i) break;
+            int k = 0;
+            while (j <= i && m_board[i][i-j] == PieceType::MyPiece)
+            {
+                k++;
+                j++;
+            }
+            if (k >= 5) return true;
+        }
+
+        j = 0;
+        while (j <= i)
+        {
+            while (j <= i && m_board[i-j][i] != PieceType::MyPiece)
+                j++;
+            if (j == i) break;
+            int k = 0;
+            while (j <= i && m_board[i-j][i] == PieceType::MyPiece)
+            {
+                k++;
+                j++;
+            }
+            if (k >= 5) return true;
+        }
+    }
 
     return false;
 }

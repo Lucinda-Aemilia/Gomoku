@@ -12,8 +12,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     m_role = None;
     m_state = Board::Undefined;
-    m_listenSocket = NULL;
-    m_readWriteSocket = NULL;
+    m_listenSocket = new QTcpServer;
+    m_readWriteSocket = new QTcpSocket;
     ui->board->init(Board::Undefined);
     connect(ui->board, SIGNAL(inputFinished(Board::Piece)),
             this, SLOT(addedPiece(Board::Piece)));
@@ -43,6 +43,8 @@ void MainWindow::on_createButton_clicked()
 
         if (!m_listenSocket)
             this->m_listenSocket = new QTcpServer;
+        if (!m_readWriteSocket)
+            this->m_readWriteSocket = new QTcpSocket;
 
         this->m_listenSocket->listen(QHostAddress::Any, 8888);
         // this->listenSocket->listen(QHostAddress("192.168.2.106"), 8888);
@@ -86,6 +88,7 @@ void MainWindow::acceptConnection()
         qDebug() << "accept connection from client";
         ui->statusTextEdit->setPlainText("Status: Received connection from client");
         this->m_readWriteSocket = this->m_listenSocket->nextPendingConnection();
+        qDebug() << m_readWriteSocket->isOpen();
         QObject::connect(this->m_readWriteSocket, SIGNAL(readyRead())
                          , this, SLOT(recvMessage()));
 
@@ -144,7 +147,7 @@ void MainWindow::addedPiece(const Board::Piece &piece)
     if (win)
     {
         text += QString(";") +QString("WIN");
-        qDebug() << "addpiece" << text << text.toLocal8Bit() << text.toLatin1();
+        qDebug() << "addpiece" << text;
         m_readWriteSocket->write(text.toLocal8Bit());
         this->win();
     }
@@ -218,33 +221,51 @@ void MainWindow::recvMessage()
 
 void MainWindow::win(QString info)
 {
-    if (info != "")
-        info.append('\n' + "You win.");
-    else
-        info = "You win.";
-    QMessageBox::information(this, "Contratulations!", info);
     // clearAll();
     ui->board->setState(Board::Win);
     m_state = Board::Undefined;
     if (m_listenSocket)
+    {
         m_listenSocket->close();
-    m_readWriteSocket->close();
+        m_listenSocket->deleteLater();
+        m_listenSocket = NULL;
+    }
+    if (m_readWriteSocket)
+    {
+        m_readWriteSocket->close();
+        m_readWriteSocket->deleteLater();
+        m_readWriteSocket = NULL;
+    }
+    if (info != "")
+        info.append(QString("\n") + QString("You win."));
+    else
+        info = "You win.";
+    QMessageBox::information(this, "Contratulations!", info);
 }
 
 void MainWindow::lose(QString info)
 {
-    if (info != "")
-        info.append('\n' + "You lose.");
-    else
-        info = "You lose.";
-    QMessageBox::information(this, "Sorry...", info);
     // clearAll();
     m_readWriteSocket->write(QString("QUIT").toLocal8Bit());
     ui->board->setState(Board::Lost);
     m_state = Board::Undefined;
     if (m_listenSocket)
+    {
         m_listenSocket->close();
-    m_readWriteSocket->close();
+        m_listenSocket->deleteLater();
+        m_listenSocket = NULL;
+    }
+    if (m_readWriteSocket)
+    {
+        m_readWriteSocket->close();
+        m_readWriteSocket->deleteLater();
+        m_readWriteSocket = NULL;
+    }
+    if (info != "")
+        info.append(QString("\n") + QString("You lose."));
+    else
+        info = "You lose.";
+    QMessageBox::information(this, "Sorry...", info);
 }
 
 void MainWindow::clearAll()
@@ -269,6 +290,8 @@ void MainWindow::on_connectButton_clicked()
 
         if (!m_readWriteSocket)
             this->m_readWriteSocket = new QTcpSocket;
+        if (!m_listenSocket)
+            this->m_listenSocket = new QTcpServer;
 
         // this->m_readWriteSocket->connectToHost(hostAddress, 8888);
         qDebug() << "waiting for host connection";
