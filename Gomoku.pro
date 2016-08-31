@@ -16,14 +16,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     board.cpp \
     createdialog.cpp \
-    connectbutton.cpp
+    connectdialog.cpp
 
 HEADERS  += mainwindow.h \
     board.h \
     createdialog.h \
-    connectbutton.h
+    connectdialog.h
 
 FORMS    += mainwindow.ui \
     board.ui \
     createdialog.ui \
-    connectbutton.ui
+    connectdialog.ui

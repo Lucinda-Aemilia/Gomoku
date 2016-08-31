@@ -2,10 +2,13 @@
 #define MAINWINDOW_H
 
 #include "board.h"
+#include "connectdialog.h"
+#include "createdialog.h"
 
 #include <QMainWindow>
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
+#include <QTimer>
 
 namespace Ui {
 class MainWindow;
@@ -23,9 +26,12 @@ public:
 public slots:
     void acceptConnection();
     void recvMessage();
+    void waitForServerConnection();
 
 private slots:
     void on_createButton_clicked();
+
+    void on_connectButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -33,6 +39,7 @@ private:
     QTcpServer  *m_listenSocket;
     QTcpSocket  *m_readWriteSocket;
     Board::State m_state;
+    QHostAddress m_hostAddress;
 };
 
 #endif // MAINWINDOW_H
