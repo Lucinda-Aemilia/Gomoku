@@ -20,6 +20,7 @@ class Board : public QWidget
     Q_OBJECT
 
 public:
+    class Piece;
     enum PieceType { MyPiece, OtherPiece, None };
     enum State {Undefined, WaitForConnect, Pend, Run, Win, Lost };
     explicit Board(QWidget *parent = 0);
@@ -36,7 +37,10 @@ public:
         calcDangerous();
         update();
     }
-
+    Piece getLastInput() const
+    {
+        return m_pieces.last();
+    }
     ~Board();
 
     class Piece
@@ -54,6 +58,9 @@ public:
         PieceType _type;
     };
 
+signals:
+    void inputFinished(const Board::Piece& piece);
+
 protected:
     void calcDangerous();
     void calcDangerous(int* three, int* halfFour);
@@ -61,6 +68,15 @@ protected:
 public slots:
     void addPiece(const Piece& piece);
     int toIndex(int pos);
+    // 等待输入
+    void waitForInput();
+    void addOtherPiece(int r, int c)
+    {
+        Piece piece(r, c, OtherPiece);
+        m_board[r][c] = OtherPiece;
+        m_pieces.append(piece);
+        update();
+    }
 
 private:
     Ui::Board *ui;

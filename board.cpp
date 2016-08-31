@@ -58,6 +58,8 @@ void Board::addPiece(const Piece &piece)
     }
     m_board[piece.row()][piece.column()] = PieceType::MyPiece;
     m_pieces.append(piece);
+    m_state = Pend;
+    emit inputFinished(piece);
     update();
 }
 
@@ -155,6 +157,12 @@ void Board::calcDangerous()
             m_pieces.removeLast();
         }
 
+}
+
+void Board::waitForInput()
+{
+    m_state = Run;
+    update();
 }
 
 void Board::calcDangerous(int* three, int* halfFour)

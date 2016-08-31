@@ -14,6 +14,11 @@ MainWindow::MainWindow(QWidget *parent) :
     m_state = Board::Undefined;
     m_listenSocket = NULL;
     m_readWriteSocket = NULL;
+    ui->board->init(Board::Undefined);
+    connect(ui->board, SIGNAL(inputFinished(Board::Piece)),
+            this, SLOT(recvOtherPiece(Board::Piece)));
+    m_blackPng.load(":/icon/black.png");
+    m_whitePng.load(":/icon/white.png");
 }
 
 MainWindow::~MainWindow()
@@ -33,8 +38,8 @@ void MainWindow::on_createButton_clicked()
             return;
         m_state = Board::WaitForConnect;
         m_role = Server;
-        ui->roleLabel->setText("Role: Server");
-        ui->statusLabel->setText("Status: Waiting for connection");
+        ui->roleTextEdit->setPlainText("Role: Server");
+        ui->statusTextEdit->setPlainText("Status: Waiting for connection");
 
         if (!m_listenSocket)
             this->m_listenSocket = new QTcpServer;
@@ -50,10 +55,10 @@ void MainWindow::on_createButton_clicked()
         messageBox->addButton(QMessageBox::Cancel);
         messageBox->setWindowTitle("Waiting...");
         messageBox->setText("Waiting for new connection...");
-        qDebug() << "...";
+        // qDebug() << "...";
         connect(this->m_listenSocket, SIGNAL(newConnection()),
                 messageBox, SLOT(close()));
-        qDebug() << "...";
+        // qDebug() << "...";
         ret = messageBox->exec();
         if (ret == QMessageBox::Cancel && m_state == Board::WaitForConnect)
         {
@@ -61,9 +66,11 @@ void MainWindow::on_createButton_clicked()
             m_listenSocket->close();
             m_state = Board::Undefined;
             m_role = None;
-            ui->roleLabel->setText("Role: Undefined");
-            ui->statusLabel->setText("Status: Undefined");
+            ui->roleTextEdit->setPlainText("Role: Undefined");
+            ui->statusTextEdit->setPlainText("Status: Undefined");
         }
+
+        // 连接完后，开始决定谁是先手，谁是后手，开始下棋
     }
 }
 
@@ -77,26 +84,50 @@ void MainWindow::acceptConnection()
     if (m_role == Server)
     {
         qDebug() << "accept connection from client";
-        ui->statusLabel->setText("Status: Received connection from client");
+        ui->statusTextEdit->setPlainText("Status: Received connection from client");
         this->m_readWriteSocket = this->m_listenSocket->nextPendingConnection();
         QObject::connect(this->m_readWriteSocket, SIGNAL(readyRead())
                          , this, SLOT(recvMessage()));
+
+        // random黑色或白色
+        std::srand(std::time(0));
+        int x = std::rand() % 2;
+        if (x == 0) // server 执黑棋
+        {
+            ui->board->init(Board::Run, Qt::black);
+            ui->meColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size()));
+            ui->otherColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size()));
+            ui->board->waitForInput();
+        }
+        else // server 执白棋
+        {
+            ui->board->init(Board::Pend, Qt::white);
+            ui->meColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size()));
+            ui->otherColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size()));
+            QString text("COLOR(BLACK)");
+            m_readWriteSocket->write(text.toLocal8Bit());
+        }
     }
     else if (m_role == Client)
     {
         // m_state = Board::Pend;
         qDebug() << "accept connection from server";
-        ui->statusLabel->setText("Status: Received connection from server");
+        ui->statusTextEdit->setPlainText("Status: Received connection from server");
         QObject::connect(this->m_readWriteSocket, SIGNAL(readyRead())
                          , this, SLOT(recvMessage()));
     }
 
 }
+
+void MainWindow::recvOtherPiece(const Board::Piece &piece)
+{
+    ui->board->addOtherPiece(piece.row(), piece.column());
+}
+
 void MainWindow::recvMessage()
 {
     qDebug() << "received message";
-    QString info;
-    info += this->m_readWriteSocket->readAll();
+    QString info(this->m_readWriteSocket->readAll());
     qDebug() << info;
 }
 
@@ -112,8 +143,8 @@ void MainWindow::on_connectButton_clicked()
         m_hostAddress = dialog.getHostAddress();
         m_state = Board::WaitForConnect;
         m_role = Client;
-        ui->roleLabel->setText("Role: Client");
-        ui->statusLabel->setText("Status: Waiting for connection");
+        ui->roleTextEdit->setPlainText("Role: Client");
+        ui->statusTextEdit->setPlainText("Status: Waiting for connection");
 
         if (!m_readWriteSocket)
             this->m_readWriteSocket = new QTcpSocket;
@@ -150,8 +181,8 @@ void MainWindow::on_connectButton_clicked()
             m_state = Board::Undefined;
             m_role = None;
             // timer->stop();
-            ui->roleLabel->setText("Role: Undefined");
-            ui->statusLabel->setText("Status: Undefined");
+            ui->roleTextEdit->setPlainText("Role: Undefined");
+            ui->statusTextEdit->setPlainText("Status: Undefined");
         }
         timer->stop();
     }

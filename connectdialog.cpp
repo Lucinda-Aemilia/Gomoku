@@ -49,14 +49,38 @@ QHostAddress ConnectDialog::getHostAddress() const
 
 void ConnectDialog::closeEvent(QCloseEvent *event)
 {
+    /*
     // QHostAddress address(ui->lineEdit->text());
     QRegExp rx2("^([1]?/d/d?|2[0-4]/d|25[0-5])/.([1]?/d/d?|2[0-4]/d|25[0-5])/.\
 ([1]?/d/d?|2[0-4]/d|25[0-5])/.([1]?/d/d?|2[0-4]/d|25[0-5])$");
-
+    qDebug() << "closeEvent" << ui->lineEdit->text();
     if (!rx2.exactMatch(ui->lineEdit->text()))
-            QMessageBox::warning(this, tr("Error"), tr("Wrong IP address."));
+    {
+        event->ignore();
+        QMessageBox::warning(this, tr("Error"), tr("Wrong IP address."));
+        return;
+    }
     else
-        QDialog::closeEvent(event);
+    */
+    QDialog::closeEvent(event);
+}
+
+void ConnectDialog::accept()
+{
+    QHostAddress address(ui->lineEdit->text());
+    /*
+    QRegExp rx2("^([1]?/d/d?|2[0-4]/d|25[0-5])/.([1]?/d/d?|2[0-4]/d|25[0-5])/.\
+([1]?/d/d?|2[0-4]/d|25[0-5])/.([1]?/d/d?|2[0-4]/d|25[0-5])$");
+*/
+    qDebug() << "accept" << ui->lineEdit->text();
+    qDebug() << address.toString();
+    if (address.toString() != ui->lineEdit->text())
+    {
+        QMessageBox::warning(this, tr("Error"), tr("Wrong IP address."));
+        return;
+    }
+    else
+    QDialog::accept();
 }
 
 void ConnectDialog::on_buttonDelete_clicked()

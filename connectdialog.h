@@ -22,6 +22,7 @@ public:
 
 public slots:
     void appendToAddress(const QString& c);
+    void accept();
 
 protected:
     void closeEvent(QCloseEvent* event);

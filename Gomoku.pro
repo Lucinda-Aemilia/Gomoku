@@ -27,3 +27,6 @@ FORMS    += mainwindow.ui \
     board.ui \
     createdialog.ui \
     connectdialog.ui
+
+RESOURCES += \
+    icons.qrc

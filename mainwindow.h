@@ -8,7 +8,10 @@
 #include <QMainWindow>
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
+#include <QPixmap>
 #include <QTimer>
+#include <ctime>
+#include <cstdlib>
 
 namespace Ui {
 class MainWindow;
@@ -26,6 +29,7 @@ public:
 public slots:
     void acceptConnection();
     void recvMessage();
+    void recvOtherPiece(const Board::Piece& piece);
     void waitForServerConnection();
 
 private slots:
@@ -40,6 +44,8 @@ private:
     QTcpSocket  *m_readWriteSocket;
     Board::State m_state;
     QHostAddress m_hostAddress;
+    QPixmap m_blackPng;
+    QPixmap m_whitePng;
 };
 
 #endif // MAINWINDOW_H
