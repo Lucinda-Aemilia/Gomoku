@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_readWriteSocket = new QTcpSocket;
     ui->board->init(Board::Undefined);
     connect(ui->board, SIGNAL(inputFinished(Board::Piece)),
-            this, SLOT(addedPiece(Board::Piece)));
+            this, SLOT(addedMyPiece(Board::Piece)));
     m_blackPng.load(":/icon/black.png");
     m_whitePng.load(":/icon/white.png");
 
@@ -36,7 +36,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_createButton_clicked()
 {
     qDebug() << "create button" << m_state << Board::Undefined;
-    if (m_state == Board::Undefined)
+    if (m_state == Board::Undefined || m_state == Board::Win || m_state == Board::Lost)
     {
         // 显示主机ip
         CreateDialog dialog(this);
@@ -105,11 +105,15 @@ void MainWindow::acceptConnection()
         int x = std::rand() % 2;
         if (x == 0) // server 执黑棋
         {
+            ui->statusTextEdit->setPlainText("Status: It's your turn");
+            m_state = Board::Run;
             ui->board->init(Board::Run, Qt::black);
             ui->meColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size(),
                                                           Qt::KeepAspectRatio));
             ui->otherColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size(),
                                                              Qt::KeepAspectRatio));
+            // ui->statusTextEdit->setPlainText("Status: Waiting the opponent...");
+            // m_state = Board::Pend;
             QString text("COLOR WHITE");
             m_readWriteSocket->write(text.toLocal8Bit());
             ui->board->waitForInput();
@@ -117,6 +121,8 @@ void MainWindow::acceptConnection()
         else // server 执白棋
         {
             ui->board->init(Board::Pend, Qt::white);
+            ui->statusTextEdit->setPlainText("Status: Waiting the opponent...");
+            m_state = Board::Pend;
             ui->meColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size(),
                                                           Qt::KeepAspectRatio));
             ui->otherColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size(),
@@ -145,10 +151,13 @@ void MainWindow::acceptConnection()
 
 }
 
-void MainWindow::addedPiece(const Board::Piece &piece)
+// 这个函数的意思是，你自己下完了。。。
+void MainWindow::addedMyPiece(const Board::Piece &piece)
 {
     ui->board->addOtherPiece(piece.row(), piece.column());
     QString text(QString("ADD %1 %2").arg(piece.row()).arg(piece.column()));
+    ui->statusTextEdit->setPlainText("Status: Waiting for the opponent...");
+    m_state = Board::Pend;
     bool win = ui->board->checkState();
 
     if (win)
@@ -180,6 +189,8 @@ void MainWindow::recvMessage()
                                                               Qt::KeepAspectRatio));
                 ui->otherColorLabel->setPixmap(m_whitePng.scaled(ui->meColorLabel->size(),
                                                                  Qt::KeepAspectRatio));
+                ui->statusTextEdit->setPlainText("Status: It's your turn");
+                m_state = Board::Run;
                 ui->board->init(Board::Run, Qt::black);
                 ui->board->waitForInput();
                 bool win = ui->board->checkState();
@@ -188,7 +199,8 @@ void MainWindow::recvMessage()
                     m_readWriteSocket->write(QString("WIN").toLocal8Bit());
                     this->win();
                 }
-
+                // ui->statusTextEdit->setPlainText("Status: Waiting for the opponent...");
+                // m_state = Board::Pend;
             }
             else
             {
@@ -197,12 +209,16 @@ void MainWindow::recvMessage()
                 ui->otherColorLabel->setPixmap(m_blackPng.scaled(ui->meColorLabel->size(),
                                                                  Qt::KeepAspectRatio));
                 ui->board->init(Board::Pend, Qt::white);
+                ui->statusTextEdit->setPlainText("Status: Waiting for the opponent...");
+                m_state = Board::Pend;
             }
         }
         else if (list.at(i).contains("ADD"))
         {
             int r = command.at(1).toInt(), c = command.at(2).toInt();
             ui->board->addOtherPiece(r, c);
+            ui->statusTextEdit->setPlainText("Status: It's your turn");
+            m_state = Board::Run;
             ui->board->waitForInput();
             qDebug() << ui->board->getColor() << "After waiting for input";
             bool win = ui->board->checkState();
@@ -212,6 +228,8 @@ void MainWindow::recvMessage()
                 m_readWriteSocket->write(QString("WIN").toLocal8Bit());
                 this->win();
             }
+            // ui->statusTextEdit->setPlainText("Status: Waiting for the opponent...");
+            // m_state = Board::Pend;
         }
         else if (list.at(i).contains("QUIT"))
         {
@@ -231,6 +249,9 @@ void MainWindow::win(QString info)
     // clearAll();
     ui->board->setState(Board::Win);
     m_state = Board::Undefined;
+    ui->statusTextEdit->setPlainText("Status: You Win!");
+    ui->roleTextEdit->setPlainText("Role: Undefined");
+    m_state = Board::Win;
     if (m_listenSocket)
     {
         m_listenSocket->close();
@@ -255,7 +276,10 @@ void MainWindow::lose(QString info)
     // clearAll();
     m_readWriteSocket->write(QString("QUIT").toLocal8Bit());
     ui->board->setState(Board::Lost);
-    m_state = Board::Undefined;
+    ui->statusTextEdit->setPlainText("Status: You Lose...");
+    ui->roleTextEdit->setPlainText("Role: Undefined");
+    m_state = Board::Win;
+    m_state = Board::Lost;
     if (m_listenSocket)
     {
         m_listenSocket->close();
@@ -283,7 +307,7 @@ void MainWindow::clearAll()
 void MainWindow::on_connectButton_clicked()
 {
     qDebug() << "connect button" << m_state << Board::Undefined;
-    if (m_state == Board::Undefined)
+    if (m_state == Board::Undefined || m_state == Board::Win || m_state == Board::Lost)
     {
         ConnectDialog dialog(this);
         int ret = dialog.exec();
@@ -358,11 +382,38 @@ void clientWindow::connectHost()
 
 void MainWindow::on_quitButton_clicked()
 {
-    if (m_state == Board::Undefined)
+    quit("Do you really want to quit?\nYou will lose.");
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (m_state == Board::Pend || m_state == Board::Run)
+    {
+        int ret = QMessageBox::question(this, "Exit",
+                                        "You have to quit the game to exit.\nContinue?",
+                                        QMessageBox::Yes, QMessageBox::No);
+        if (ret == QMessageBox::No)
+        {
+            event->ignore();
+            return;
+        }
+        // this->close();
+        else
+        {
+            // m_readWriteSocket->write(QString("QUIT").toLocal8Bit());
+            event->accept();
+            lose("You quit.");
+        }
+    }
+    else
+        event->accept();
+}
+
+void MainWindow::quit(QString info)
+{
+    if (m_state == Board::Undefined || m_state == Board::Win || m_state == Board::Lost)
         return;
-    int ret = QMessageBox::question(this, "Quit",
-                          "Do you really want to quit?\nYou will lose.",
-                                    QMessageBox::Yes, QMessageBox::No);
+    int ret = QMessageBox::question(this, "Quit", info, QMessageBox::Yes, QMessageBox::No);
     if (ret == QMessageBox::No)
         return;
 

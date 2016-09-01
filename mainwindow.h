@@ -31,11 +31,15 @@ public:
 public slots:
     void acceptConnection();
     void recvMessage();
-    void addedPiece(const Board::Piece& piece);
+    void addedMyPiece(const Board::Piece& piece);
     void waitForServerConnection();
     void clearAll();
     void win(QString info = "");
     void lose(QString info = "");
+    void quit(QString info = "");
+
+protected:
+    void closeEvent(QCloseEvent* event);
 
 private slots:
     void on_createButton_clicked();

@@ -42,6 +42,8 @@ void Board::mousePressEvent(QMouseEvent *event)
         // qDebug() << x << y;
         int c = toIndex(x - (width()-m_length)/2);
         int r = toIndex(y - (height()-m_length)/2);
+        if (c < 0 || c >= 15 || r < 0 || r >= 15)
+            return;
         if (m_board[r][c] != PieceType::None)
             return;
         // qDebug() << r << c;
