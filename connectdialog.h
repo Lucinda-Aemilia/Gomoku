@@ -30,6 +30,8 @@ protected:
 private slots:
     void on_buttonDelete_clicked();
 
+    void on_localHostButton_clicked();
+
 private:
     Ui::ConnectDialog *ui;
 };

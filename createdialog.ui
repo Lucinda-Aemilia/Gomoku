@@ -33,6 +33,13 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="localHostButton">
+       <property name="text">
+        <string>Localhost</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

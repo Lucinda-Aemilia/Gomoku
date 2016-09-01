@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QHostAddress>
+#include <QNetworkInterface>
 
 
 namespace Ui {
@@ -17,6 +18,9 @@ public:
     explicit CreateDialog(QWidget *parent = 0);
     ~CreateDialog();
     QHostAddress getHostAddress() const;
+
+private slots:
+    void on_localHostButton_clicked();
 
 private:
     Ui::CreateDialog *ui;

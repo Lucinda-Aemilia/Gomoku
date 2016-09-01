@@ -92,3 +92,8 @@ void ConnectDialog::on_buttonDelete_clicked()
         ui->lineEdit->setText(text);
     }
 }
+
+void ConnectDialog::on_localHostButton_clicked()
+{
+    ui->lineEdit->setText(QHostAddress(QHostAddress::LocalHost).toString());
+}

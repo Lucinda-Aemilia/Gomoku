@@ -4,4 +4,7 @@
         <file>bomb.png</file>
         <file>white.png</file>
     </qresource>
+    <qresource prefix="/background">
+        <file>wood.png</file>
+    </qresource>
 </RCC>

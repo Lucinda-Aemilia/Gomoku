@@ -6,7 +6,7 @@ Board::Board(QWidget *parent) :
     ui(new Ui::Board)
 {
     ui->setupUi(this);
-    m_backgroundColor = QColor("tan");
+    m_background.load(":/background/wood.png");
     m_margin = 60;
     // memset(m_inputArea, 0, sizeof(m_inputArea));
 
@@ -205,8 +205,6 @@ int Board::toIndex(int pos)
 // 绘制棋盘
 void Board::paintEvent(QPaintEvent *event)
 {
-
-    // 画格子
     int totWidth = width(), totHeight = height();
     int length = std::min(totWidth, totHeight) - m_margin;
     m_length = length;
@@ -216,6 +214,14 @@ void Board::paintEvent(QPaintEvent *event)
     m_pointSize = m_pointSize == 0 ? 1 : m_pointSize;
 
     QPainter painter(this);
+    // 画背景
+    painter.setPen(Qt::NoPen);
+    // painter.setBrush(QBrush(m_background));
+    painter.drawPixmap((totWidth - length - m_margin)/2, (totHeight - length - m_margin)/2,
+                       length + m_margin, length + m_margin,
+                       m_background);
+
+    // 画格子
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setPen(Qt::black);
     painter.translate((totWidth - length)/2, (totHeight - length)/2);

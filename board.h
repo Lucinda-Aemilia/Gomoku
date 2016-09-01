@@ -10,6 +10,7 @@
 #include <QRect>
 #include <QVector>
 #include <QDebug>
+#include <QPixmap>
 
 namespace Ui {
 class Board;
@@ -97,7 +98,7 @@ public slots:
 
 private:
     Ui::Board *ui;
-    QColor m_backgroundColor;
+    QPixmap m_background;
     QColor m_pieceColor;
     QColor m_otherPieceColor;
     State m_state;
