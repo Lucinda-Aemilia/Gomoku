@@ -163,11 +163,11 @@ bool Board::checkState()
         int j = 0;
         while (j <= i)
         {
-            while (j <= i && m_board[i][i-j] != PieceType::MyPiece)
+            while (j <= i && m_board[i-j][j] != PieceType::MyPiece)
                 j++;
-            if (j == i) break;
+            if (j > i) break;
             int k = 0;
-            while (j <= i && m_board[i][i-j] == PieceType::MyPiece)
+            while (j <= i && m_board[i-j][j] == PieceType::MyPiece)
             {
                 k++;
                 j++;
@@ -175,20 +175,23 @@ bool Board::checkState()
             if (k >= 5) return true;
         }
 
-        j = 0;
-        while (j <= i)
+
+        j = 14;
+        int m = i+j;
+        while (j >= 0)
         {
-            while (j <= i && m_board[i-j][i] != PieceType::MyPiece)
-                j++;
-            if (j == i) break;
+            while (j >= 0 && m_board[m-j][j] != PieceType::MyPiece)
+                j--;
+            if (j < 0) break;
             int k = 0;
-            while (j <= i && m_board[i-j][i] == PieceType::MyPiece)
+            while (j >= 0 && m_board[m-j][j] == PieceType::MyPiece)
             {
                 k++;
-                j++;
+                j--;
             }
             if (k >= 5) return true;
         }
+
     }
 
     return false;
