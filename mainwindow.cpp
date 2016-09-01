@@ -361,3 +361,11 @@ void MainWindow::on_quitButton_clicked()
 
     lose("You quit.");
 }
+
+void MainWindow::on_remindButton_clicked()
+{
+    if (m_state != Board::Undefined)
+    {
+        ui->board->calcDangerous();
+    }
+}

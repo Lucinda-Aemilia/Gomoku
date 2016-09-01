@@ -25,7 +25,8 @@ CreateDialog::CreateDialog(QWidget *parent) :
     // ipAddress = QHostAddress::LocalHost;
 
     ui->setupUi(this);
-    ui->lineEdit->setText(QHostAddress(QHostAddress::LocalHost).toString());
+    // ui->lineEdit->setText(QHostAddress(QHostAddress::LocalHost).toString());
+    ui->lineEdit->setText(ipAddress);
 }
 
 CreateDialog::~CreateDialog()

@@ -44,6 +44,8 @@ private slots:
 
     void on_quitButton_clicked();
 
+    void on_remindButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Role m_role;

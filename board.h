@@ -68,14 +68,15 @@ signals:
     void inputFinished(const Board::Piece& piece);
 
 protected:
-    void calcDangerous();
-    void calcDangerous(int* three, int* halfFour);
+    void calcDangerous(int* a, int* b);
 
 public slots:
     void addPiece(const Piece& piece);
     int toIndex(int pos);
     // 等待输入
     void waitForInput();
+    // 计算危险位置
+    void calcDangerous();
     void addOtherPiece(int r, int c)
     {
         Piece piece(r, c, OtherPiece);
@@ -84,6 +85,7 @@ public slots:
         m_board[r][c] = OtherPiece;
         m_pieces.append(piece);
 
+        /*
         qDebug() << "\n*******addOtherPiece*******";
         for (int i = 0; i < m_pieces.size(); i++)
         {
@@ -92,13 +94,16 @@ public slots:
                      << m_pieces.at(i).type();
             qDebug() << "MyPiece" << MyPiece << "OtherPiece" << OtherPiece;
         }
-
+        */
+        m_danger = false;
+        m_dangers.clear();
         update();
     }
 
 private:
     Ui::Board *ui;
     QPixmap m_background;
+    QPixmap m_bomb;
     QColor m_pieceColor;
     QColor m_otherPieceColor;
     State m_state;
