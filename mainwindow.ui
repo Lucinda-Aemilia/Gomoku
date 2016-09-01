@@ -68,7 +68,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QLCDNumber" name="lcdNumber"/>
+          <widget class="QLCDNumber" name="curTimeLCD">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -134,7 +138,7 @@
           </widget>
          </item>
          <item row="1" column="0" rowspan="3">
-          <widget class="QLabel" name="label_5">
+          <widget class="QLabel" name="meTimeLabel">
            <property name="text">
             <string>Total Time</string>
            </property>
@@ -148,7 +152,7 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QLCDNumber" name="lcdNumber_2"/>
+          <widget class="QLCDNumber" name="meTimeLCD"/>
          </item>
         </layout>
        </widget>
@@ -177,14 +181,14 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_7">
+          <widget class="QLabel" name="otherTimeLabel">
            <property name="text">
             <string>Total Time</string>
            </property>
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QLCDNumber" name="lcdNumber_3"/>
+          <widget class="QLCDNumber" name="otherTimeLCD"/>
          </item>
         </layout>
        </widget>

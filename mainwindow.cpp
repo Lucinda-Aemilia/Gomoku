@@ -19,6 +19,13 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(addedPiece(Board::Piece)));
     m_blackPng.load(":/icon/black.png");
     m_whitePng.load(":/icon/white.png");
+
+    // 这些功能暂时不打算写了
+    ui->curTimeLCD->hide();
+    ui->meTimeLabel->hide();
+    ui->meTimeLCD->hide();
+    ui->otherTimeLabel->hide();
+    ui->otherTimeLCD->hide();
 }
 
 MainWindow::~MainWindow()

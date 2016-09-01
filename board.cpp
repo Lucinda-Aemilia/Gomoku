@@ -303,6 +303,8 @@ void Board::calcDangerous()
 {
     m_dangers.clear();
     m_danger = true;
+    int oriThree = 0, oriHalfFour = 0;
+    calcDangerous(&oriThree, &oriHalfFour);
     for (int i = 0; i < 15; i++)
         for (int j = 0; j < 15; j++)
         {
@@ -315,12 +317,15 @@ void Board::calcDangerous()
             int halfFour = 0;
 
             calcDangerous(&three, &halfFour);
-            if (three >= 2 || three && halfFour)
+            if (three >= 2 && three > oriThree)
             {
-                qDebug() << i << j << three << halfFour;
+                // qDebug() << i << j << three << halfFour;
                 m_dangers.append(QPoint(j, i));
             }
-
+            else if (three > 0 && halfFour > 0 && (three > oriThree || halfFour > oriHalfFour))
+            {
+                m_dangers.append(QPoint(j, i));
+            }
             m_board[i][j] = PieceType::None;
             m_pieces.removeLast();
         }
@@ -359,14 +364,16 @@ void Board::calcDangerous(int* a, int* b)
             if (j == 15 || m_board[i][j] == PieceType::MyPiece)
                 whole++;
 
-            /*
+
             if (k == 4 && whole == 1)
                 halfFour++;
             else if (k == 3 && whole == 0)
                 three++;
-                */
+
+            /*
             if (k == 4) halfFour++;
             if (k == 3) three++;
+            */
         }
         // 竖
         j = 0;
@@ -386,67 +393,99 @@ void Board::calcDangerous(int* a, int* b)
             }
             if (j == 15 || m_board[j][i] == PieceType::MyPiece)
                 whole++;
-            /*
+
             if (k == 4 && whole == 1)
                 halfFour++;
             else if (k == 3 && whole == 0)
                 three++;
-            */
+
+            /*
             if (k == 4) halfFour++;
             if (k == 3) three++;
+            */
         }
     }
 
-    /*
-    // 左斜
+
+    // 左斜 '\'
     for (int i = 0; i < 15; i++)
     {
         int j = 0;
         while (j + i < 15)
         {
-            while (j + i < 15 && m_board[j][i+j] != PieceType::MyPiece)
+            int whole = 0;
+            while (j + i < 15 && m_board[j][i+j] != PieceType::OtherPiece)
                 j++;
             if (j+i == 15) break;
+            if (j == 0 || m_board[j-1][i+j-1] == PieceType::MyPiece)
+                whole = 1;
+
             int k = 0;
-            while (i+j < 15 && m_board[j][i+j] == PieceType::MyPiece)
+            while (i+j < 15 && m_board[j][i+j] == PieceType::OtherPiece)
             {
                 k++;
                 j++;
             }
-            if (k >= 5) return true;
+            if (i+j == 15 || m_board[j][i+j] == PieceType::MyPiece)
+                whole++;
+
+            if (whole == 1 && k == 4)
+                halfFour++;
+            if (whole == 0 && k == 3)
+                three++;
         }
 
         j = 0;
         while (j + i < 15)
         {
-            while (j + i < 15 && m_board[i+j][j] != PieceType::MyPiece)
+            int whole = 0;
+            while (j + i < 15 && m_board[i+j][j] != PieceType::OtherPiece)
                 j++;
             if (j+i == 15) break;
+            if (j == 0 || m_board[i+j-1][j-1] == PieceType::MyPiece)
+                whole = 1;
+
             int k = 0;
-            while (i+j < 15 && m_board[i+j][j] == PieceType::MyPiece)
+            while (i+j < 15 && m_board[i+j][j] == PieceType::OtherPiece)
             {
                 k++;
                 j++;
             }
-            if (k >= 5) return true;
+            if (i+j == 15 || m_board[i+j][j] == PieceType::MyPiece)
+                whole++;
+
+            if (whole == 1 && k == 4)
+                halfFour++;
+            if (whole == 0 && k == 3)
+                three++;
         }
     }
-    // 右斜
+
+    // 右斜 '/'
     for (int i = 0; i < 15; i++)
     {
         int j = 0;
         while (j <= i)
         {
-            while (j <= i && m_board[i-j][j] != PieceType::MyPiece)
+            int whole = 0;
+            while (j <= i && m_board[i-j][j] != PieceType::OtherPiece)
                 j++;
             if (j > i) break;
+            if (j == 0 || m_board[i-j+1][j-1] == PieceType::MyPiece)
+                whole = 1;
+
             int k = 0;
-            while (j <= i && m_board[i-j][j] == PieceType::MyPiece)
+            while (j <= i && m_board[i-j][j] == PieceType::OtherPiece)
             {
                 k++;
                 j++;
             }
-            if (k >= 5) return true;
+            if (j > i || m_board[i-j][j] == PieceType::MyPiece)
+                whole++;
+            if (whole == 1 && k == 4)
+                halfFour++;
+            if (whole == 0 && k == 3)
+                three++;
         }
 
 
@@ -454,20 +493,29 @@ void Board::calcDangerous(int* a, int* b)
         int m = i+j;
         while (j >= 0)
         {
-            while (j >= 0 && m_board[m-j][j] != PieceType::MyPiece)
+            int whole = 0;
+            while (j >= 0 && m_board[m-j][j] != PieceType::OtherPiece)
                 j--;
             if (j < 0) break;
+            if (j == 14 || m_board[m-j-1][j+1] == PieceType::MyPiece)
+                whole = 1;
+
             int k = 0;
-            while (j >= 0 && m_board[m-j][j] == PieceType::MyPiece)
+            while (j >= 0 && m_board[m-j][j] == PieceType::OtherPiece)
             {
                 k++;
                 j--;
             }
-            if (k >= 5) return true;
+            if (j < 0 || m_board[m-j][j] == PieceType::MyPiece)
+                whole++;
+            if (whole == 1 && k == 4)
+                halfFour++;
+            if (whole == 0 && k == 3)
+                three++;
         }
 
     }
-    */
+
     if (three != 0 && halfFour != 0)
         qDebug() << "three" << three << "halffour" << halfFour;
     (*a) = three;
