@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QHostAddress>
 #include <QNetworkInterface>
+#include <QHostInfo>
 
 
 namespace Ui {

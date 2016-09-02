@@ -9,13 +9,37 @@ CreateDialog::CreateDialog(QWidget *parent) :
     QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
 
     // use the first non-localhost IPv4 address
+    for (int i = 0; i < ipAddressesList.size(); ++i)
+    {
+        if (ipAddressesList.at(i).protocol() == QAbstractSocket::IPv4Protocol)
+            qDebug() << ipAddressesList.at(i).toString();
+    }
+
+    QString localHostName = QHostInfo::localHostName();
+
+    qDebug() << "localHostName:" << localHostName;
+    QHostInfo info = QHostInfo::fromName(localHostName);
+    foreach(QHostAddress address,info.addresses())
+    {
+        if(address.protocol() == QAbstractSocket::IPv4Protocol &&
+                address.toString() != "192.168.79.1" &&
+                address.toString() != "192.168.213.1")
+        {
+            qDebug() <<"IPV4 Address: "<< address.toString();
+            ipAddress = address.toString();
+        }
+    }
+
+    /*
     for (int i = 0; i < ipAddressesList.size(); ++i) {
+        // qDebug() << ipAddressesList.at(i).toString();
         if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
                 ipAddressesList.at(i).toIPv4Address()) {
             ipAddress = ipAddressesList.at(i).toString();
             break;
         }
     }
+    */
 
     // if we did not find one, use IPv4 localhost
     if (ipAddress.isEmpty())
